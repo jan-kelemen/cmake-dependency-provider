@@ -1,5 +1,8 @@
 #include <cstdint>
 
+#include <flatbuffers/flatbuffers.h>
+#include <wire_generated.h>
+
 #include <zmq.hpp>
 #include <fmt/core.h>
 #include <date/date.h>
@@ -296,6 +299,10 @@ struct fmt::formatter<timestamp>
 
 int main(int argc, char* argv[])
 {
+    flatbuffers::FlatBufferBuilder raw_builder;
+
+    auto const query_off = CreateQueryDirect(raw_builder, fmt::format("{}", current_timestamp()).c_str());
+
     // Scan the IP address provided at the commandline.
     lexy::argv_input input(argc, argv);
     auto             result = lexy::parse<grammar::ip_address>(input, lexy_ext::report_error);

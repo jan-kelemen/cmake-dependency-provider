@@ -38,8 +38,14 @@ FetchContent_Declare(
     GIT_TAG c94c20743ed7d4aa37835a5c46567ab0790d4acc # Release 4.10.0
 )
 
+FetchContent_Declare(
+    flatbuffers
+    GIT_REPOSITORY https://github.com/google/flatbuffers.git
+    GIT_TAG 0100f6a5779831fa7a651e4b67ef389a8752bd9b # Release 23.5.26
+)
+
 macro(jk_provide_dependecy method dep_name)
-    if("${dep_name}" MATCHES "^(lexy|fmt|date|Catch2|cppzmq|ZeroMQ)$")
+    if("${dep_name}" MATCHES "^(lexy|fmt|date|Catch2|cppzmq|ZeroMQ|flatbuffers)$")
         list(APPEND jk_provider_args ${method} ${dep_name})
 
         if ("${dep_name}" MATCHES "^cppzmq$")
@@ -47,6 +53,8 @@ macro(jk_provide_dependecy method dep_name)
         elseif ("${dep_name}" MATCHES "^ZeroMQ$")
             set (ZMQ_BUILD_TESTS OFF CACHE INTERNAL "Turn off tests")
             set (WITH_PERF_TOOL OFF CACHE INTERNAL "Disable unnecessary targets")
+        elseif ("${dep_name}" MATCHES "^flatbuffers$")
+            set (FLATBUFFERS_BUILD_TESTS OFF CACHE INTERNAL "Turn off tests")
         endif()
 
         FetchContent_MakeAvailable(${dep_name})
