@@ -1,5 +1,7 @@
 #include <cstdint>
 
+#include <boost/program_options.hpp>
+
 #include <flatbuffers/flatbuffers.h>
 #include <wire_generated.h>
 
@@ -13,6 +15,8 @@
 #include <lexy/input/argv_input.hpp> // lexy::argv_input
 
 #include <lexy_ext/report_error.hpp> // lexy_ext::report_error
+
+#include <iostream>
 
 namespace
 {
@@ -297,8 +301,40 @@ struct fmt::formatter<timestamp>
     }
 };
 
+std::optional<bool> parse_options(int argc, char** argv)
+{
+    namespace bpo = boost::program_options;
+
+    // https://stackoverflow.com/a/14940678
+    try
+    {
+        bpo::options_description cmd_options{"Allowed options"};
+        cmd_options.add_options()("help", "produce help message");
+        bpo::variables_map vm;
+        bpo::store(bpo::parse_command_line(argc, argv, cmd_options), vm);
+
+        if (vm.count("help"))
+        {
+            std::cout << cmd_options << '\n';
+            return std::nullopt;
+        }
+
+        bpo::notify(vm);
+
+        return {true};
+    }
+    catch (const bpo::error& ex)
+    {
+        std::cerr << "Failed start with given command line arguments: "
+                  << ex.what() << '\n';
+        return std::nullopt;
+    }
+}
+
 int main(int argc, char* argv[])
 {
+    parse_options(argc, argv);
+
     flatbuffers::FlatBufferBuilder raw_builder;
 
     auto const query_off = CreateQueryDirect(raw_builder, fmt::format("{}", current_timestamp()).c_str());

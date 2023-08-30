@@ -8,6 +8,7 @@ find_package(date REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(cppzmq REQUIRED)
 find_package(flatbuffers REQUIRED)
+find_package(Boost REQUIRED)
 
 build_flatbuffers(
     "wire.fbs" # Schema files
@@ -27,6 +28,7 @@ target_link_libraries(cmake-dependency-provider
     PRIVATE
         flatbuffers
         foonathan::lexy
+        Boost::program_options
         fmt::fmt
         date::date
         cppzmq
