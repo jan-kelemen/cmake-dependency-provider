@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include <fmt/core.h>
+#include <date/date.h>
 
 #include <lexy/action/parse.hpp>     // lexy::parse
 #include <lexy/callback.hpp>         // value callbacks
@@ -236,6 +237,62 @@ namespace grammar
 } // namespace grammar
 } // namespace
 
+struct timestamp
+{
+    int16_t year;
+    uint8_t month;
+    uint8_t day;
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds;
+    uint16_t milliseconds;
+};
+
+timestamp current_timestamp() noexcept
+{
+    using namespace date;
+    std::chrono::system_clock::time_point const time =
+        std::chrono::system_clock::now();
+
+    auto const daypoint = floor<days>(time);
+    year_month_day const ymd = year_month_day(daypoint);
+
+    auto const tmd = make_time(time - daypoint);
+
+    std::chrono::duration tp =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            time.time_since_epoch());
+    tp -= std::chrono::duration_cast<std::chrono::seconds>(tp);
+
+    return {static_cast<int16_t>(static_cast<int>(ymd.year())),
+        static_cast<uint8_t>(static_cast<unsigned>(ymd.month())),
+        static_cast<uint8_t>(static_cast<unsigned>(ymd.day())),
+        static_cast<uint8_t>(tmd.hours().count()),
+        static_cast<uint8_t>(tmd.minutes().count()),
+        static_cast<uint8_t>(tmd.seconds().count()),
+        static_cast<uint16_t>(tp / std::chrono::milliseconds(1))};
+}
+
+template<>
+struct fmt::formatter<timestamp>
+{
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template<typename FormatContext>
+    auto format(timestamp const& t, FormatContext& ctx)
+    {
+        return format_to(ctx.out(),
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}:{:03}",
+            t.year,
+            t.month,
+            t.day,
+            t.hours,
+            t.minutes,
+            t.seconds,
+            t.milliseconds);
+    }
+};
+
 int main(int argc, char* argv[])
 {
     // Scan the IP address provided at the commandline.
@@ -247,9 +304,10 @@ int main(int argc, char* argv[])
     auto value = result.value();
 
     if (value.version == 4)
-        fmt::println("0x{:0x}{:0x}", value.pieces[0], value.pieces[1]);
+        fmt::println("{} 0x{:0x}{:0x}", current_timestamp(), value.pieces[0], value.pieces[1]);
     else
-        fmt::println("0x{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}",
+        fmt::println("{} 0x{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}",
+                current_timestamp(),
                 value.pieces[0],
                 value.pieces[1],
                 value.pieces[2],
