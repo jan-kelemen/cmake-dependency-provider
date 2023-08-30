@@ -1,5 +1,7 @@
 #include <cstdint>
 
+#include <fmt/core.h>
+
 #include <lexy/action/parse.hpp>     // lexy::parse
 #include <lexy/callback.hpp>         // value callbacks
 #include <lexy/dsl.hpp>              // lexy::dsl::*
@@ -244,12 +246,18 @@ int main(int argc, char* argv[])
 
     auto value = result.value();
 
-    // And print it as an integer.
-    std::printf("0x");
-    auto count = value.version == 4 ? 2 : 8;
-    for (auto i = 0; i < count; ++i)
-        std::printf("%02X", value.pieces[i]);
-    std::printf("\n");
+    if (value.version == 4)
+        fmt::println("0x{:0x}{:0x}", value.pieces[0], value.pieces[1]);
+    else
+        fmt::println("0x{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}{:0x}",
+                value.pieces[0],
+                value.pieces[1],
+                value.pieces[2],
+                value.pieces[3],
+                value.pieces[4],
+                value.pieces[5],
+                value.pieces[6],
+                value.pieces[7]);
 
     return result ? 0 : 1;
 }

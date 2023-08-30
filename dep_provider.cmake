@@ -8,11 +8,17 @@ FetchContent_Declare(
     GIT_TAG 1b31b097fa4fcaf5465f038793fe88cdc2140b71
 )
 
+FetchContent_Declare(
+    fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG f5e54359df4c26b6230fc61d38aa294581393084 # Release 10.1.1
+)
+
 macro(jk_provide_dependecy method dep_name)
-    if("${dep_name}" MATCHES "^lexy$")
+    if("${dep_name}" MATCHES "^(lexy|fmt)$")
         list(APPEND jk_provider_args ${method} ${dep_name})
 
-        FetchContent_MakeAvailable(lexy)
+        FetchContent_MakeAvailable(${dep_name})
 
         list(POP_BACK jk_provider_args dep_name method)
 
