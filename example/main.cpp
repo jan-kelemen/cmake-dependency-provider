@@ -1,5 +1,6 @@
 #include <cstdint>
 
+#include <zmq.hpp>
 #include <fmt/core.h>
 #include <date/date.h>
 
@@ -316,6 +317,11 @@ int main(int argc, char* argv[])
                 value.pieces[5],
                 value.pieces[6],
                 value.pieces[7]);
+
+    zmq::context_t ctx;
+    zmq::socket_t sock(ctx, zmq::socket_type::push);
+    sock.bind("inproc://test");
+    sock.send(zmq::str_buffer("Hello, world"), zmq::send_flags::dontwait);
 
     return result ? 0 : 1;
 }

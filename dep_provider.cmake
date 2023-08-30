@@ -26,9 +26,28 @@ FetchContent_Declare(
     GIT_TAG 6e79e682b726f524310d55dec8ddac4e9c52fb5f # Release 3.4.0
 )
 
+FetchContent_Declare(
+    ZeroMQ
+    GIT_REPOSITORY https://github.com/zeromq/libzmq.git
+    GIT_TAG 4097855ddaaa65ed7b5e8cb86d143842a594eebd # Release 4.3.4
+)
+
+FetchContent_Declare(
+    cppzmq
+    GIT_REPOSITORY https://github.com/zeromq/cppzmq.git
+    GIT_TAG c94c20743ed7d4aa37835a5c46567ab0790d4acc # Release 4.10.0
+)
+
 macro(jk_provide_dependecy method dep_name)
-    if("${dep_name}" MATCHES "^(lexy|fmt|date|Catch2)$")
+    if("${dep_name}" MATCHES "^(lexy|fmt|date|Catch2|cppzmq|ZeroMQ)$")
         list(APPEND jk_provider_args ${method} ${dep_name})
+
+        if ("${dep_name}" MATCHES "^cppzmq$")
+            set (CPPZMQ_BUILD_TESTS OFF CACHE INTERNAL "Turn off tests")
+        elseif ("${dep_name}" MATCHES "^ZeroMQ$")
+            set (ZMQ_BUILD_TESTS OFF CACHE INTERNAL "Turn off tests")
+            set (WITH_PERF_TOOL OFF CACHE INTERNAL "Disable unnecessary targets")
+        endif()
 
         FetchContent_MakeAvailable(${dep_name})
 

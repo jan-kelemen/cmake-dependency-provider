@@ -6,6 +6,7 @@ find_package(lexy)
 find_package(fmt)
 find_package(date)
 find_package(Catch2)
+find_package(cppzmq)
 
 add_executable(cmake-dependency-provider)
 
@@ -16,6 +17,7 @@ target_link_libraries(cmake-dependency-provider
         foonathan::lexy
         fmt::fmt
         date::date
+        cppzmq
 )
 
 add_executable(cmake-dependency-provider-tests)
