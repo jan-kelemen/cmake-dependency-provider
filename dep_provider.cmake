@@ -20,8 +20,14 @@ FetchContent_Declare(
     GIT_TAG 6e921e1b1d21e84a5c82416ba7ecd98e33a436d0 # Release 3.0.1
 )
 
+FetchContent_Declare(
+    Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG 6e79e682b726f524310d55dec8ddac4e9c52fb5f # Release 3.4.0
+)
+
 macro(jk_provide_dependecy method dep_name)
-    if("${dep_name}" MATCHES "^(lexy|fmt|date)$")
+    if("${dep_name}" MATCHES "^(lexy|fmt|date|Catch2)$")
         list(APPEND jk_provider_args ${method} ${dep_name})
 
         FetchContent_MakeAvailable(${dep_name})
